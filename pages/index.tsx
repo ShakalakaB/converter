@@ -2,12 +2,13 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
+import { SqlParser } from "../components/SqlParser";
 
 const Home: NextPage = () => {
   return (
     <div className={styles.container}>
       <Head>
-        <title>SQL to Java Pojo</title>
+        <title>SQL to Entity</title>
         <meta name="description" content="Convert sql schema to java pojo" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -16,7 +17,7 @@ const Home: NextPage = () => {
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
-
+        <SqlParser/>
 
       </main>
 
