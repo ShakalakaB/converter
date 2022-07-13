@@ -1,5 +1,5 @@
 {
-  "name": "sql2pojo",
+  "name": "sql2entity",
   "version": "0.1.0",
   "private": true,
   "scripts": {
