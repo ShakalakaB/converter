@@ -2,13 +2,19 @@ import { FC, PropsWithChildren } from "react";
 import { number, string } from "prop-types";
 import { SqlSyntax } from "../constants/SqlSyntax";
 
-type sqlField = {
+type SqlField = {
   name: string,
   type: string,
   length: number,
   unsigned: boolean,
   null: boolean
 };
+
+type Statement = {
+  tokens: Array<string>,
+  sql: string,
+  fields: Array<SqlField>
+}
 
 export const SqlParser: FC<PropsWithChildren<{}>> = () => {
   const sql = "CREATE TABLE DbName.TableName ( \n" +
@@ -28,14 +34,37 @@ export const SqlParser: FC<PropsWithChildren<{}>> = () => {
   const lexicalPosition: [number, number][] = [];
   lexicalAnalyzer(sql, lexicalPosition);
 
-  const lexicalList: string[] = [];
-  const lexicalMap: [number, number][] = [];
-  lexicalExtractor(sql, lexicalPosition, SqlSyntax.sqlTokenMap, SqlSyntax.sqlSingularTokenMap, lexicalList, lexicalMap);
+  const tokenList: string[] = [];
+  const tokenPosition: [number, number][] = [];
+  tokenExtractor(sql, lexicalPosition, SqlSyntax.sqlTokenMap, SqlSyntax.sqlSingularTokenMap, tokenList, tokenPosition);
 
+  const statements: Array<Statement> = [];
+  let temp: Array<string> = [];
+  let starter = 0;
+  for (let i = 0; i < tokenList.length; i++) {
+    const token = tokenList[i];
+    if (token !== ";") {
+      temp.push(token);
+      continue;
+    }
 
+    if (temp.length > 0) {
+      const item: Statement = {
+        tokens: temp,
+        sql: sql.slice(tokenPosition[starter][0], tokenPosition[i][1]),
+        fields: []
+      };
+      statements.push(item);
+    }
+    temp = [];
+    starter = i + 1;
+  }
 
-  console.log(lexicalList);
-  console.log(lexicalMap);
+  if (temp.length > 0) {
+
+  }
+  console.log(tokenList);
+  console.log(tokenPosition);
   return <h2>sqlparser</h2>;
 };
 
@@ -133,11 +162,11 @@ function lexicalAnalyzer(sql: string, lexicalPosition: [number, number][]): void
   }
 }
 
-function lexicalExtractor(sql: string, lexicalPosition: [number, number][],
+function tokenExtractor(sql: string, lexicalPosition: [number, number][],
                           sqlTokenMap: Map<string, Array<Array<String>>>,
                           sqlSingularTokenMap: Map<string, number>,
-                          lexicalList: string[],
-                          lexicalMap: [number, number][]) {
+                          tokenList: string[],
+                          tokenPosition: [number, number][]) {
   let i: number = 0;
   while (i < lexicalPosition.length) {
     const token = sql.slice(lexicalPosition[i][0], lexicalPosition[i][1]);
@@ -159,22 +188,22 @@ function lexicalExtractor(sql: string, lexicalPosition: [number, number][],
       }
 
       if (found && tokenList) {
-        lexicalList.push(tokenList.join(" "));
-        lexicalMap.push([lexicalPosition[i][0], lexicalPosition[i + j - 1][1]]);
+        tokenList.push(tokenList.join(" "));
+        tokenPosition.push([lexicalPosition[i][0], lexicalPosition[i + j - 1][1]]);
         i += j;
         continue;
       }
     }
 
     if (sqlSingularTokenMap.get(tokenUpperCase) == 1) {
-      lexicalList.push(tokenUpperCase);
-      lexicalMap.push(lexicalPosition[i]);
+      tokenList.push(tokenUpperCase);
+      tokenPosition.push(lexicalPosition[i]);
       i++;
       continue;
     }
 
-    lexicalList.push(token);
-    lexicalMap.push(lexicalPosition[i]);
+    tokenList.push(token);
+    tokenPosition.push(lexicalPosition[i]);
     i++;
   }
 }
