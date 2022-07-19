@@ -1,5 +1,12 @@
-# sql2pojo
+# sql2entity
 Convert sql schema to java pojo
+
+## Introduction
+This project aims to convert sql schema to entity code.
+
+This project draws on [SQLParser](https://github.com/iamcal/SQLParser).
+
+
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
