@@ -12,9 +12,14 @@ type SqlField = {
 
 type Statement = {
   tokens: Array<string>,
-  sql: string,
-  fields: Array<SqlField>
+  sql: string
 }
+
+type Table = {
+  tableName: string,
+  fields: Array<SqlField>,
+  sql: string
+};
 
 export const SqlParser: FC<PropsWithChildren<{}>> = () => {
   const sql = "CREATE TABLE DbName.TableName ( \n" +
@@ -28,7 +33,7 @@ export const SqlParser: FC<PropsWithChildren<{}>> = () => {
     "                    PRIMARY KEY (id), \n" +
     "                    KEY (place_id, next_processing_time), \n" +
     "                    UNIQUE KEY (user_id, place_id, photo_id) \n" +
-    "                );";
+    "                ); create table";
 
   // lexical-analyzer
   const lexicalPosition: [number, number][] = [];
@@ -38,33 +43,26 @@ export const SqlParser: FC<PropsWithChildren<{}>> = () => {
   const tokenPosition: [number, number][] = [];
   tokenExtractor(sql, lexicalPosition, SqlSyntax.sqlTokenMap, SqlSyntax.sqlSingularTokenMap, tokenList, tokenPosition);
 
-  const statements: Array<Statement> = [];
-  let temp: Array<string> = [];
-  let starter = 0;
-  for (let i = 0; i < tokenList.length; i++) {
-    const token = tokenList[i];
-    if (token !== ";") {
-      temp.push(token);
-      continue;
+  const statements: Statement[] = extractStatement(tokenList, sql, tokenPosition);
+
+  const tables: Table[] = [];
+  for (let statement of statements) {
+    if (statement.tokens[0] === "CREATE TABLE") {
+      let i = 0;
+      if (statement.tokens[i] === "IF NOT EXISTS") {
+        i++;
+      }
+
+
     }
 
-    if (temp.length > 0) {
-      const item: Statement = {
-        tokens: temp,
-        sql: sql.slice(tokenPosition[starter][0], tokenPosition[i][1]),
-        fields: []
-      };
-      statements.push(item);
+    if (statement.tokens[0] === "CREATE TEMPORARY TABLE") {
+
     }
-    temp = [];
-    starter = i + 1;
   }
 
-  if (temp.length > 0) {
-
-  }
   console.log(tokenList);
-  console.log(tokenPosition);
+  console.log(statements);
   return <h2>sqlparser</h2>;
 };
 
@@ -157,7 +155,6 @@ function lexicalAnalyzer(sql: string, lexicalPosition: [number, number][]): void
     // double period
     // left/right bracket
     lexicalPosition.push([position, position + 1]);
-    console.log("inside");
     position++;
   }
 }
@@ -173,22 +170,22 @@ function tokenExtractor(sql: string, lexicalPosition: [number, number][],
     const tokenUpperCase = token.toUpperCase();
     if (sqlTokenMap.get(tokenUpperCase) != undefined && sqlTokenMap.get(tokenUpperCase) instanceof Array) {
       let found = false;
-      let tokenList;
+      let sqlTokenList;
       let j = 1;
-      for (tokenList of sqlTokenMap.get(tokenUpperCase) || []) {
+      for (sqlTokenList of sqlTokenMap.get(tokenUpperCase) || []) {
         let nextToken = tokenUpperCase;
         j = 1;
-        for (j; j <= tokenList.length - 1; j++) {
+        for (j; j <= sqlTokenList.length - 1; j++) {
           nextToken += " " + sql.slice(lexicalPosition[i + j][0], lexicalPosition[i + j][1]).toUpperCase();
         }
-        if (tokenList.join(" ") === nextToken) {
+        if (sqlTokenList.join(" ") === nextToken) {
           found = true;
           break;
         }
       }
 
-      if (found && tokenList) {
-        tokenList.push(tokenList.join(" "));
+      if (found && sqlTokenList) {
+        tokenList.push(sqlTokenList.join(" "));
         tokenPosition.push([lexicalPosition[i][0], lexicalPosition[i + j - 1][1]]);
         i += j;
         continue;
@@ -206,4 +203,37 @@ function tokenExtractor(sql: string, lexicalPosition: [number, number][],
     tokenPosition.push(lexicalPosition[i]);
     i++;
   }
+}
+
+function extractStatement(tokenList: string[], sql: string, tokenPosition: [number, number][]): Array<Statement> {
+  const statements: Array<Statement> = [];
+  let temp: Array<string> = [];
+  let starter = 0;
+  let i = 0;
+  for (i; i < tokenList.length; i++) {
+    const token = tokenList[i];
+    if (token !== ";") {
+      temp.push(token);
+      continue;
+    }
+
+    if (temp.length > 0) {
+      const item: Statement = {
+        tokens: temp,
+        sql: sql.slice(tokenPosition[starter][0], tokenPosition[i][1]),
+      };
+      statements.push(item);
+    }
+    temp = [];
+    starter = i + 1;
+  }
+
+  if (temp.length > 0) {
+    const item: Statement = {
+      tokens: temp,
+      sql: sql.slice(tokenPosition[starter] !== undefined ? tokenPosition[starter][0] : sql.length),
+    };
+    statements.push(item);
+  }
+  return statements;
 }
