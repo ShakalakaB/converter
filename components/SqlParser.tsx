@@ -1,6 +1,7 @@
 import { FC, PropsWithChildren } from "react";
 import { func, number, string } from "prop-types";
 import { SqlToken } from "../constants/SqlToken";
+import { SqlToJavaDataType } from "../constants/SqlToJavaDataType";
 
 class SqlField {
   name: string;
@@ -56,9 +57,19 @@ export const SqlParser: FC<PropsWithChildren<{}>> = () => {
 
   const tables: Table[] = parseTable(statements);
 
+  const plainCode: string[] = [];
+  for (let table of tables) {
+    plainCode.push(`public class ${table.tableName ? table.tableName : "TableName"} {`);
+    for (let field of table.fields) {
+      plainCode.push(`private ${SqlToJavaDataType.dataTypeMap.get(field.type)} ${field.name};`)
+    }
+    plainCode.push("}");
+  }
+
   console.log(tokenList);
   console.log(statements);
   console.log(tables);
+  console.log(plainCode);
   return <h2>sqlparser</h2>;
 };
 
