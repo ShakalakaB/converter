@@ -1,20 +1,20 @@
 import { FC, PropsWithChildren } from "react";
 import { func, number, string } from "prop-types";
-import { SqlSyntax } from "../constants/SqlSyntax";
+import { SqlToken } from "../constants/SqlToken";
 
 class SqlField {
   name: string;
   type: string;
   length: number;
   unsigned: boolean;
-  isNull: boolean;
+  nullable: boolean;
 
   constructor(name: string = "", type: string = "", length: number = 0, unsigned: boolean = false, isNull: boolean = false) {
     this.name = name;
     this.type = type;
     this.length = length;
     this.unsigned = unsigned;
-    this.isNull = isNull;
+    this.nullable = isNull;
   }
 }
 
@@ -50,49 +50,15 @@ export const SqlParser: FC<PropsWithChildren<{}>> = () => {
 
   const tokenList: string[] = [];
   const tokenPosition: [number, number][] = [];
-  tokenExtractor(sql, lexicalPosition, SqlSyntax.sqlTokenMap, SqlSyntax.sqlSingularTokenMap, tokenList, tokenPosition);
+  tokenExtractor(sql, lexicalPosition, SqlToken.sqlTokenMap, SqlToken.sqlSingularTokenMap, tokenList, tokenPosition);
 
   const statements: Statement[] = extractStatement(tokenList, sql, tokenPosition);
 
-  const tables: Table[] = [];
-  for (let statement of statements) {
-    if (statement.tokens[0] === "CREATE TABLE") {
-      if (statement.tokens[statement.pointer] === "IF NOT EXISTS") {
-        statement.pointer++;
-      }
-
-      // data name
-      let database = "";
-      let name = decodeIdentifier(statement);
-      if (statement.tokens[statement.pointer] != undefined && statement.tokens[statement.pointer] === ".") {
-        statement.pointer++;
-        database = name;
-        name = decodeIdentifier(statement);
-      }
-
-      const fields: SqlField[] = [];
-      if (tokenIncluded(statement, "(")) {
-        statement.pointer++;
-
-        for (statement.pointer;
-             statement.pointer < statement.tokens.length && statement.tokens[statement.pointer] !== ")";
-             statement.pointer++) {
-          const fieldTokens = extractField(statement);
-
-        }
-
-      }
-
-
-    }
-
-    if (statement.tokens[0] === "CREATE TEMPORARY TABLE") {
-
-    }
-  }
+  const tables: Table[] = parseTable(statements);
 
   console.log(tokenList);
   console.log(statements);
+  console.log(tables);
   return <h2>sqlparser</h2>;
 };
 
@@ -272,7 +238,7 @@ function extractStatement(tokenList: string[], sql: string, tokenPosition: [numb
 
 function decodeIdentifier(statement: Statement): string {
   const token = statement.tokens[statement.pointer++];
-  stripBackQuote(token);
+  return  stripBackQuote(token);
 }
 
 function stripBackQuote(token: string | undefined): string {
@@ -286,15 +252,16 @@ function stripBackQuote(token: string | undefined): string {
 }
 
 function tokenIncluded(statement: Statement, value: string): boolean {
-  for (statement.pointer; statement.pointer < statement.tokens.length; statement.pointer++) {
-    if (statement.tokens[statement.pointer] === value) {
+  let i = statement.pointer;
+  for (i; i < statement.tokens.length; i++) {
+    if (statement.tokens[i] === value) {
       return true;
     }
   }
   return false;
 }
 
-function extractField(statement: Statement): string[] {
+function extractFieldTokens(statement: Statement): string[] {
   const tokens: string[] = [];
   let stack = 0;
 
@@ -375,7 +342,6 @@ function parseField(tokens: string[]): SqlField | null {
     case 'BLOB':
     case 'MEDIUMBLOB':
     case 'LONGBLOB':
-    case 'JSON':
     case 'GEOMETRY':
     case 'POINT':
     case 'LINESTRING':
@@ -436,7 +402,56 @@ function parseField(tokens: string[]): SqlField | null {
       parseFieldBinary(tokens, field);
       parseFieldLength(tokens, field);
       parseFieldCharset(tokens, field);
+      parseFieldCollate(tokens, field);
+      break;
+    case 'VARCHAR':
+    case 'CHARACTER VARYING':
+      parseFieldBinary(tokens, field);
+      parseFieldLength(tokens, field);
+      parseFieldCharset(tokens, field);
+      parseFieldCollate(tokens, field);
+      break;
+    case 'TINYTEXT':
+    case 'TEXT':
+    case 'MEDIUMTEXT':
+    case 'LONGTEXT':
+    case 'JSON':
+      parseFieldBinary(tokens, field);
+      parseFieldCharset(tokens, field);
+      parseFieldCollate(tokens, field);
+      break;
+    case 'ENUM':
+    case 'SET':
+      parseValueList(tokens);
+      parseFieldCharset(tokens, field);
+      parseFieldCharset(tokens, field);
+      break;
+    default:
+      throw new Error("Unsupported field type: " + field.type);
   }
+
+  if (tokens[0]?.toUpperCase() === "NOT NULL") {
+    field.nullable = false;
+    tokens.shift();
+  }
+  if (tokens[0]?.toUpperCase() === "NULL") {
+    field.nullable = true;
+  }
+
+  if (tokens[0]?.toUpperCase() === "DEFAULT") {
+    if (decodeValue(tokens[1]) === "NULL") {
+      field.nullable = true;
+    }
+    tokens.shift();
+    tokens.shift();
+  }
+
+  if (tokens[0]?.toUpperCase() === "AUTO_INCREMENT") {
+    tokens.shift();
+  }
+
+  return field;
+
 
 }
 
@@ -482,5 +497,122 @@ function parseFieldCharset(tokens: string[], field: SqlField): void {
     tokens.shift();
     tokens.shift();
   }
+}
 
+function parseFieldCollate(tokens: string[], field: SqlField): void {
+  if (tokens[0]?.toUpperCase() === "COLLATE") {
+    tokens.shift();
+    tokens.shift();
+  }
+}
+
+function parseValueList(tokens: string[]): string[] | null {
+  if (tokens[0] === "(") {
+    return null;
+  }
+  tokens.shift();
+
+  const values: string[] = [];
+  while (tokens.length > 0) {
+    if (tokens[0] === ")") {
+      tokens.shift();
+      return values;
+    }
+
+    values.push(stripBackQuote(tokens.shift()));
+
+    if (tokens[0] === ")") {
+      tokens.shift();
+      return values;
+    }
+
+    if (tokens[0] === ",") {
+      tokens.shift();
+    } else {
+      return values;
+    }
+  }
+  return values;
+}
+
+function decodeValue(token: string): string {
+  if (token[0] === "'" || token[0] === "\"") {
+    const newLines: Map<string, string>  = new Map<string, string>([
+      ["n", "\n"],
+      ["r", "\r"],
+      ["t", "\t"],
+    ]);
+    let value = "";
+    for (let i =0; i < token.length -1; i++) {
+      if (token[i] == "\\") {
+        if (newLines.get(token[i + 1])) {
+          value += newLines.get(token[i + 1]);
+        } else {
+          value += token[i + 1];
+        }
+        i++;
+      } else {
+        value += token[i];
+      }
+    }
+    return value;
+  }
+  return token;
+}
+
+function parseTableName(statement: Statement): string {
+  if (statement.tokens[statement.pointer] === "IF NOT EXISTS") {
+    statement.pointer++;
+  }
+
+  // data name
+  let database = "";
+  let name = decodeIdentifier(statement);
+  if (statement.tokens[statement.pointer] === ".") {
+    statement.pointer++;
+    database = name;
+    name = decodeIdentifier(statement);
+  }
+
+  // CREATE TABLE x LIKE y
+  if (tokenIncluded(statement, "LIKE")) {
+    statement.pointer++;
+    let oldName = decodeIdentifier(statement);
+
+    let likeDatabase = null;
+    if (statement.tokens[statement.pointer] === ".") {
+      statement.pointer++;
+      likeDatabase = oldName;
+      oldName = decodeIdentifier(statement);
+    }
+  }
+  return name;
+}
+
+function parseTable(statements: Statement[]) {
+  const tables: Table[] = [];
+  for (let statement of statements) {
+    if (statement.tokens[statement.pointer++] === "CREATE TABLE" || statement.tokens[statement.pointer++] === "CREATE TEMPORARY TABLE") {
+      const tableName = parseTableName(statement);
+
+      const fields: SqlField[] = [];
+      if (tokenIncluded(statement, "(")) {
+        statement.pointer++;
+
+        while (statement.pointer < statement.tokens.length && statement.tokens[statement.pointer] !== ")") {
+          const fieldTokens = extractFieldTokens(statement);
+          const optionalField: SqlField | null = parseField(fieldTokens);
+          optionalField !== null && fields.push(optionalField);
+        }
+
+        tables.push({
+          tableName,
+          fields,
+          sql: statement.sql,
+        });
+
+      }
+    }
+  }
+  return tables;
 }

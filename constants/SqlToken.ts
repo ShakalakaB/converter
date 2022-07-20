@@ -1,4 +1,4 @@
-export class SqlSyntax {
+export class SqlToken {
   private static _sqlTokenMap: Map<string, Array<Array<String>>> = new Map();
 
   private static _sqlSingularTokenMap: Map<string, number> = new Map([
@@ -44,14 +44,14 @@ export class SqlSyntax {
   ];
 
   static {
-    SqlSyntax.sqlTokens.forEach(sqlToken => {
+    SqlToken.sqlTokens.forEach(sqlToken => {
       const splitToken = sqlToken.split(" ");
-      let items = SqlSyntax._sqlTokenMap.get(splitToken[0]);
+      let items = SqlToken._sqlTokenMap.get(splitToken[0]);
       if (items == undefined) {
         items = [];
       }
       items.push(splitToken);
-      SqlSyntax._sqlTokenMap.set(splitToken[0], items);
+      SqlToken._sqlTokenMap.set(splitToken[0], items);
     });
   }
 
