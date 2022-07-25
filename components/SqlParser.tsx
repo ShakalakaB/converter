@@ -3,6 +3,8 @@ import { func, number, string } from "prop-types";
 import { SqlToken } from "../constants/SqlToken";
 import { SqlToJavaDataType } from "../constants/SqlToJavaDataType";
 
+// https://docs.microsoft.com/en-us/sql/language-extensions/how-to/java-to-sql-data-types?view=sql-server-ver16
+// https://www.w3schools.com/sql/sql_datatypes.asp
 class SqlField {
   name: string;
   type: string;
@@ -31,7 +33,13 @@ type Table = {
   sql: string
 };
 
-export const SqlParser: FC<PropsWithChildren<{}>> = () => {
+enum NameType {
+  CAMEL_CASE,
+  UPPER_CAMEL_CASE,
+  UNDERSCORE
+}
+
+export const SqlParser: FC<{type: NameType}> = ({type = NameType.CAMEL_CASE}) => {
   const sql = "CREATE TABLE DbName.TableName ( \n" +
     "                    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, \n" +
     "                    errcnt INT(10) UNSIGNED NOT NULL DEFAULT '0', \n" +
@@ -45,6 +53,35 @@ export const SqlParser: FC<PropsWithChildren<{}>> = () => {
     "                    UNIQUE KEY (user_id, place_id, photo_id) \n" +
     "                ); create table";
 
+  const test = "Class Books{\n" +
+    "\tprivate String user_name;\n" +
+    "\tprivate int age;\n" +
+    "\tprivate java.util.Date dob;\n" +
+    "\n" +
+    "\tpublic String getUser_name(){\n" +
+    "\t\treturn user_name;\n" +
+    "\t}\n" +
+    "\n" +
+    "\tpublic void setUser_name(String user_name){\n" +
+    "\t\tthis.user_name=user_name;\n" +
+    "\t}\n" +
+    "\n" +
+    "\tpublic int getAge(){\n" +
+    "\t\treturn age;\n" +
+    "\t}\n" +
+    "\n" +
+    "\tpublic void setAge(int age){\n" +
+    "\t\tthis.age=age;\n" +
+    "\t}\n" +
+    "\n" +
+    "\tpublic java.util.Date getDob(){\n" +
+    "\t\treturn dob;\n" +
+    "\t}\n" +
+    "\n" +
+    "\tpublic void setDob(java.util.Date dob){\n" +
+    "\t\tthis.dob=dob;\n" +
+    "\t}\n" +
+    "}"
   // lexical-analyzer
   const lexicalPosition: [number, number][] = [];
   lexicalAnalyzer(sql, lexicalPosition);
@@ -57,19 +94,43 @@ export const SqlParser: FC<PropsWithChildren<{}>> = () => {
 
   const tables: Table[] = parseTable(statements);
 
-  const plainCode: string[] = [];
+  const plainCode: [string, number][] = [];
+  let javaCode: string = "";
+  let includedGetterAndSetter = true;
   for (let table of tables) {
-    plainCode.push(`public class ${table.tableName ? table.tableName : "TableName"} {`);
+    plainCode.push([`public class ${table.tableName} {\n`, 0]);
+    javaCode += `public class ${table.tableName} {\n`;
     for (let field of table.fields) {
-      plainCode.push(`private ${SqlToJavaDataType.dataTypeMap.get(field.type)} ${field.name};`)
+      plainCode.push([`private ${SqlToJavaDataType.dataTypeMap.get(field.type)} ${field.name};\n\n`, 1]);
+      javaCode += "\t" + `private ${SqlToJavaDataType.dataTypeMap.get(field.type)} ${field.name};\n\n`;
     }
-    plainCode.push("}");
+    if (includedGetterAndSetter) {
+      for (let field of table.fields) {
+        const dataType: string | undefined = SqlToJavaDataType.dataTypeMap.get(field.type);
+        const methodSuffix = field.name[0].toUpperCase() + field.name.slice(1);
+        plainCode.push([`public ${dataType} get${methodSuffix} () {\n`, 1])
+        plainCode.push([`return this.${field.name};\n`, 2])
+        plainCode.push([`}\n\n`, 1])
+        javaCode += "\t" +  `public ${dataType} get${methodSuffix} () {\n`;
+        javaCode += "\t\t" +  `return this.${field.name};\n`;
+        javaCode += "\t" +  `}\n\n`;
+
+        plainCode.push([`public ${dataType} set${methodSuffix} (${dataType} ${field.name}) {\n`, 1])
+        plainCode.push([`this.${field.name} = ${field.name};\n`, 2])
+        plainCode.push([`}\n\n`, 1])
+        javaCode += "\t" +  `public ${dataType} set${methodSuffix} (${dataType} ${field.name}) {\n`;
+        javaCode += "\t\t" +  `this.${field.name} = ${field.name};\n`;
+        javaCode += "\t" +  `}\n\n`;
+      }
+    }
+    plainCode.push(["}", 0]);
+    javaCode += "}"
   }
 
-  console.log(tokenList);
-  console.log(statements);
-  console.log(tables);
-  console.log(plainCode);
+  // console.log(tokenList);
+  // console.log(statements);
+  // console.log(tables);
+  console.log(javaCode);
   return <h2>sqlparser</h2>;
 };
 
@@ -343,7 +404,8 @@ function parseField(tokens: string[]): SqlField | null {
   }
 
   const field = new SqlField();
-  field.name = stripBackQuote(tokens.shift());
+  field.name = formatFieldName(stripBackQuote(tokens.shift()));
+
   field.type = tokens.shift()!.toUpperCase();
 
   switch (field.type) {
@@ -604,7 +666,7 @@ function parseTable(statements: Statement[]) {
   const tables: Table[] = [];
   for (let statement of statements) {
     if (statement.tokens[statement.pointer++] === "CREATE TABLE" || statement.tokens[statement.pointer++] === "CREATE TEMPORARY TABLE") {
-      const tableName = parseTableName(statement);
+      const tableName = upperCamelize(parseTableName(statement), "TableName");
 
       const fields: SqlField[] = [];
       if (tokenIncluded(statement, "(")) {
@@ -626,4 +688,46 @@ function parseTable(statements: Statement[]) {
     }
   }
   return tables;
+}
+
+function camelize(value: string, defaultValue: string = "") {
+  value = value ? value.trim() : "";
+  if (!value) {
+    return defaultValue;
+  }
+  return  value.replaceAll(/(?<=_|\s)[a-z]/g, matchedWord => matchedWord.toUpperCase())
+    .replaceAll(/[_\s]+/g, "");
+}
+
+function upperCamelize(value: string, defaultValue: string = "") {
+  value = value ? value.trim() : "";
+  if (!value) {
+    return defaultValue;
+  }
+
+  return ((value[0].toUpperCase() + value.slice(1)))
+    .replaceAll(/(?<=_|\s)[a-z]/g, matchedWord => matchedWord.toUpperCase())
+    .replaceAll(/[_\s]+/g, "");
+}
+
+function underscore(value: string, defaultValue: string = "") {
+  value = value ? value.trim() : "";
+  if (!value) {
+    return defaultValue;
+  }
+  return value
+    .replaceAll(/(?<=.)[A-Z]/g, matchedWord => "_" + matchedWord.toLowerCase())
+    .replaceAll(/\s+/g, matchedWord => "_")
+    .replaceAll(/[\s]+/g, "");
+}
+
+function formatFieldName(fieldName: string, type: NameType = NameType.CAMEL_CASE): string {
+  switch (type) {
+    case NameType.UNDERSCORE:
+      return underscore(fieldName);
+    case NameType.UPPER_CAMEL_CASE:
+      return upperCamelize(fieldName);
+    default:
+      return camelize(fieldName);
+  }
 }
