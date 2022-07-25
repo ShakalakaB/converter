@@ -12,7 +12,13 @@ class SqlField {
   unsigned: boolean;
   nullable: boolean;
 
-  constructor(name: string = "", type: string = "", length: number = 0, unsigned: boolean = false, isNull: boolean = false) {
+  constructor(
+    name: string = "",
+    type: string = "",
+    length: number = 0,
+    unsigned: boolean = false,
+    isNull: boolean = false
+  ) {
     this.name = name;
     this.type = type;
     this.length = length;
@@ -22,109 +28,97 @@ class SqlField {
 }
 
 type Statement = {
-  tokens: Array<string>,
-  sql: string
-  pointer: number
-}
+  tokens: Array<string>;
+  sql: string;
+  pointer: number;
+};
 
 type Table = {
-  tableName: string,
-  fields: Array<SqlField>,
-  sql: string
+  tableName: string;
+  fields: Array<SqlField>;
+  sql: string;
 };
 
 enum NameType {
   CAMEL_CASE,
   UPPER_CAMEL_CASE,
-  UNDERSCORE
+  UNDERSCORE,
 }
 
-export const SqlParser: FC<{type: NameType}> = ({type = NameType.CAMEL_CASE}) => {
-  const sql = "CREATE TABLE DbName.TableName ( \n" +
-    "                    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, \n" +
-    "                    errcnt INT(10) UNSIGNED NOT NULL DEFAULT '0', \n" +
-    "                    user_id INT UNSIGNED NOT NULL, \n" +
-    "                    photo_id INT UNSIGNED NOT NULL, \n" +
-    "                    place_id INT UNSIGNED NOT NULL, \n" +
-    "                    next_processing_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, \n" +
-    "                    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, \n" +
-    "                    PRIMARY KEY (id), \n" +
-    "                    KEY (place_id, next_processing_time), \n" +
-    "                    UNIQUE KEY (user_id, place_id, photo_id) \n" +
-    "                ); create table";
+export const SqlParser: FC<{
+  sql: string;
+  nameType: NameType;
+  getterAndSetterIncluded: boolean;
+}> = ({
+  sql = "",
+  nameType = NameType.CAMEL_CASE,
+  getterAndSetterIncluded,
+}) => {
+  // const sql =
+  //   "CREATE TABLE DbName.TableName ( \n" +
+  //   "                    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, \n" +
+  //   "                    errcnt INT(10) UNSIGNED NOT NULL DEFAULT '0', \n" +
+  //   "                    user_id INT UNSIGNED NOT NULL, \n" +
+  //   "                    photo_id INT UNSIGNED NOT NULL, \n" +
+  //   "                    place_id INT UNSIGNED NOT NULL, \n" +
+  //   "                    next_processing_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, \n" +
+  //   "                    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, \n" +
+  //   "                    PRIMARY KEY (id), \n" +
+  //   "                    KEY (place_id, next_processing_time), \n" +
+  //   "                    UNIQUE KEY (user_id, place_id, photo_id) \n" +
+  //   "                ); create table";
 
-  const test = "Class Books{\n" +
-    "\tprivate String user_name;\n" +
-    "\tprivate int age;\n" +
-    "\tprivate java.util.Date dob;\n" +
-    "\n" +
-    "\tpublic String getUser_name(){\n" +
-    "\t\treturn user_name;\n" +
-    "\t}\n" +
-    "\n" +
-    "\tpublic void setUser_name(String user_name){\n" +
-    "\t\tthis.user_name=user_name;\n" +
-    "\t}\n" +
-    "\n" +
-    "\tpublic int getAge(){\n" +
-    "\t\treturn age;\n" +
-    "\t}\n" +
-    "\n" +
-    "\tpublic void setAge(int age){\n" +
-    "\t\tthis.age=age;\n" +
-    "\t}\n" +
-    "\n" +
-    "\tpublic java.util.Date getDob(){\n" +
-    "\t\treturn dob;\n" +
-    "\t}\n" +
-    "\n" +
-    "\tpublic void setDob(java.util.Date dob){\n" +
-    "\t\tthis.dob=dob;\n" +
-    "\t}\n" +
-    "}"
   // lexical-analyzer
   const lexicalPosition: [number, number][] = [];
   lexicalAnalyzer(sql, lexicalPosition);
 
   const tokenList: string[] = [];
   const tokenPosition: [number, number][] = [];
-  tokenExtractor(sql, lexicalPosition, SqlToken.sqlTokenMap, SqlToken.sqlSingularTokenMap, tokenList, tokenPosition);
+  tokenExtractor(
+    sql,
+    lexicalPosition,
+    SqlToken.sqlTokenMap,
+    SqlToken.sqlSingularTokenMap,
+    tokenList,
+    tokenPosition
+  );
 
-  const statements: Statement[] = extractStatement(tokenList, sql, tokenPosition);
+  const statements: Statement[] = extractStatement(
+    tokenList,
+    sql,
+    tokenPosition
+  );
 
   const tables: Table[] = parseTable(statements);
 
-  const plainCode: [string, number][] = [];
   let javaCode: string = "";
-  let includedGetterAndSetter = true;
   for (let table of tables) {
-    plainCode.push([`public class ${table.tableName} {\n`, 0]);
     javaCode += `public class ${table.tableName} {\n`;
     for (let field of table.fields) {
-      plainCode.push([`private ${SqlToJavaDataType.dataTypeMap.get(field.type)} ${field.name};\n\n`, 1]);
-      javaCode += "\t" + `private ${SqlToJavaDataType.dataTypeMap.get(field.type)} ${field.name};\n\n`;
+      javaCode +=
+        "\t" +
+        `private ${SqlToJavaDataType.dataTypeMap.get(field.type)} ${
+          field.name
+        };\n\n`;
     }
-    if (includedGetterAndSetter) {
+    if (getterAndSetterIncluded) {
       for (let field of table.fields) {
-        const dataType: string | undefined = SqlToJavaDataType.dataTypeMap.get(field.type);
+        const dataType: string | undefined = SqlToJavaDataType.dataTypeMap.get(
+          field.type
+        );
         const methodSuffix = field.name[0].toUpperCase() + field.name.slice(1);
-        plainCode.push([`public ${dataType} get${methodSuffix} () {\n`, 1])
-        plainCode.push([`return this.${field.name};\n`, 2])
-        plainCode.push([`}\n\n`, 1])
-        javaCode += "\t" +  `public ${dataType} get${methodSuffix} () {\n`;
-        javaCode += "\t\t" +  `return this.${field.name};\n`;
-        javaCode += "\t" +  `}\n\n`;
+        javaCode += "\t" + `public ${dataType} get${methodSuffix} () {\n`;
+        javaCode += "\t\t" + `return this.${field.name};\n`;
+        javaCode += "\t" + `}\n\n`;
 
-        plainCode.push([`public ${dataType} set${methodSuffix} (${dataType} ${field.name}) {\n`, 1])
-        plainCode.push([`this.${field.name} = ${field.name};\n`, 2])
-        plainCode.push([`}\n\n`, 1])
-        javaCode += "\t" +  `public ${dataType} set${methodSuffix} (${dataType} ${field.name}) {\n`;
-        javaCode += "\t\t" +  `this.${field.name} = ${field.name};\n`;
-        javaCode += "\t" +  `}\n\n`;
+        javaCode +=
+          "\t" +
+          `public ${dataType} set${methodSuffix} (${dataType} ${field.name}) {\n`;
+        javaCode += "\t\t" + `this.${field.name} = ${field.name};\n`;
+        javaCode += "\t" + `}\n\n`;
       }
     }
-    plainCode.push(["}", 0]);
-    javaCode += "}"
+    javaCode += "}";
   }
 
   // console.log(tokenList);
@@ -134,7 +128,10 @@ export const SqlParser: FC<{type: NameType}> = ({type = NameType.CAMEL_CASE}) =>
   return <h2>sqlparser</h2>;
 };
 
-function lexicalAnalyzer(sql: string, lexicalPosition: [number, number][]): void {
+function lexicalAnalyzer(
+  sql: string,
+  lexicalPosition: [number, number][]
+): void {
   let position = 0;
   while (position < sql.length) {
     // new line, space
@@ -167,7 +164,10 @@ function lexicalAnalyzer(sql: string, lexicalPosition: [number, number][]): void
     // [a-zA-Z0-9_]*
     match = sql.slice(position).match(/^[a-zA-Z0-9_]+/);
     if (match && match.index != undefined) {
-      lexicalPosition.push([position, position + match.index + match[0].length]);
+      lexicalPosition.push([
+        position,
+        position + match.index + match[0].length,
+      ]);
       position += match.index + match[0].length;
       continue;
     }
@@ -178,7 +178,10 @@ function lexicalAnalyzer(sql: string, lexicalPosition: [number, number][]): void
       if (!match || match.index == undefined) {
         throw new Error("Unterminated backtick");
       } else {
-        lexicalPosition.push([position, position + match.index + match[0].length + 1]);
+        lexicalPosition.push([
+          position,
+          position + match.index + match[0].length + 1,
+        ]);
         position += match.index + match[0].length + 1;
         continue;
       }
@@ -190,13 +193,16 @@ function lexicalAnalyzer(sql: string, lexicalPosition: [number, number][]): void
     // <unsigned integer> ::= <digit>...
     match = sql.slice(position).match(/^(\d+\.?\d*|\.\d+)/);
     if (match && match.index != undefined) {
-      lexicalPosition.push([position, position + match.index + match[0].length]);
+      lexicalPosition.push([
+        position,
+        position + match.index + match[0].length,
+      ]);
       position += match.index + match.index + match[0].length;
       continue;
     }
 
     // literal character string
-    if (sql[position] == "'" || sql[position] == "\"") {
+    if (sql[position] == "'" || sql[position] == '"') {
       const quote = sql[position];
       // const regex: RegExp = /(?<!\\)"/;
       const regex: RegExp = new RegExp(`(?<!\\\\)${quote}`);
@@ -204,7 +210,10 @@ function lexicalAnalyzer(sql: string, lexicalPosition: [number, number][]): void
       if (!match || match.index == undefined) {
         throw new Error("Unterminated string");
       } else {
-        lexicalPosition.push([position, position + match.index + match[0].length + 1]);
+        lexicalPosition.push([
+          position,
+          position + match.index + match[0].length + 1,
+        ]);
         position += match.index + match[0].length + 1;
         continue;
       }
@@ -227,16 +236,22 @@ function lexicalAnalyzer(sql: string, lexicalPosition: [number, number][]): void
   }
 }
 
-function tokenExtractor(sql: string, lexicalPosition: [number, number][],
-                          sqlTokenMap: Map<string, Array<Array<String>>>,
-                          sqlSingularTokenMap: Map<string, number>,
-                          tokenList: string[],
-                          tokenPosition: [number, number][]) {
+function tokenExtractor(
+  sql: string,
+  lexicalPosition: [number, number][],
+  sqlTokenMap: Map<string, Array<Array<String>>>,
+  sqlSingularTokenMap: Map<string, number>,
+  tokenList: string[],
+  tokenPosition: [number, number][]
+) {
   let i: number = 0;
   while (i < lexicalPosition.length) {
     const token = sql.slice(lexicalPosition[i][0], lexicalPosition[i][1]);
     const tokenUpperCase = token.toUpperCase();
-    if (sqlTokenMap.get(tokenUpperCase) != undefined && sqlTokenMap.get(tokenUpperCase) instanceof Array) {
+    if (
+      sqlTokenMap.get(tokenUpperCase) != undefined &&
+      sqlTokenMap.get(tokenUpperCase) instanceof Array
+    ) {
       let found = false;
       let sqlTokenList;
       let j = 1;
@@ -244,7 +259,11 @@ function tokenExtractor(sql: string, lexicalPosition: [number, number][],
         let nextToken = tokenUpperCase;
         j = 1;
         for (j; j <= sqlTokenList.length - 1; j++) {
-          nextToken += " " + sql.slice(lexicalPosition[i + j][0], lexicalPosition[i + j][1]).toUpperCase();
+          nextToken +=
+            " " +
+            sql
+              .slice(lexicalPosition[i + j][0], lexicalPosition[i + j][1])
+              .toUpperCase();
         }
         if (sqlTokenList.join(" ") === nextToken) {
           found = true;
@@ -254,7 +273,10 @@ function tokenExtractor(sql: string, lexicalPosition: [number, number][],
 
       if (found && sqlTokenList) {
         tokenList.push(sqlTokenList.join(" "));
-        tokenPosition.push([lexicalPosition[i][0], lexicalPosition[i + j - 1][1]]);
+        tokenPosition.push([
+          lexicalPosition[i][0],
+          lexicalPosition[i + j - 1][1],
+        ]);
         i += j;
         continue;
       }
@@ -273,7 +295,11 @@ function tokenExtractor(sql: string, lexicalPosition: [number, number][],
   }
 }
 
-function extractStatement(tokenList: string[], sql: string, tokenPosition: [number, number][]): Array<Statement> {
+function extractStatement(
+  tokenList: string[],
+  sql: string,
+  tokenPosition: [number, number][]
+): Array<Statement> {
   const statements: Array<Statement> = [];
   let temp: Array<string> = [];
   let starter = 0;
@@ -289,7 +315,7 @@ function extractStatement(tokenList: string[], sql: string, tokenPosition: [numb
       const item: Statement = {
         tokens: temp,
         sql: sql.slice(tokenPosition[starter][0], tokenPosition[i][1]),
-        pointer: 0
+        pointer: 0,
       };
       statements.push(item);
     }
@@ -300,8 +326,12 @@ function extractStatement(tokenList: string[], sql: string, tokenPosition: [numb
   if (temp.length > 0) {
     const item: Statement = {
       tokens: temp,
-      sql: sql.slice(tokenPosition[starter] !== undefined ? tokenPosition[starter][0] : sql.length),
-      pointer: 0
+      sql: sql.slice(
+        tokenPosition[starter] !== undefined
+          ? tokenPosition[starter][0]
+          : sql.length
+      ),
+      pointer: 0,
     };
     statements.push(item);
   }
@@ -310,7 +340,7 @@ function extractStatement(tokenList: string[], sql: string, tokenPosition: [numb
 
 function decodeIdentifier(statement: Statement): string {
   const token = statement.tokens[statement.pointer++];
-  return  stripBackQuote(token);
+  return stripBackQuote(token);
 }
 
 function stripBackQuote(token: string | undefined): string {
@@ -343,7 +373,8 @@ function extractFieldTokens(statement: Statement): string[] {
     if (token === "(") {
       stack++;
       tokens.push(statement.tokens[statement.pointer++]);
-    } if (token === ")") {
+    }
+    if (token === ")") {
       if (stack) {
         stack--;
         tokens.push(statement.tokens[statement.pointer++]);
@@ -352,13 +383,13 @@ function extractFieldTokens(statement: Statement): string[] {
       }
     } else if (token === ",") {
       if (stack) {
-        tokens.push(statement.tokens[statement.pointer++])
+        tokens.push(statement.tokens[statement.pointer++]);
       } else {
         statement.pointer++;
         return tokens;
       }
     } else {
-      tokens.push(statement.tokens[statement.pointer++])
+      tokens.push(statement.tokens[statement.pointer++]);
     }
   }
   return tokens;
@@ -371,28 +402,36 @@ function parseField(tokens: string[]): SqlField | null {
   if (tokens[0] === "CONSTRAINT") {
     hasConstraint = true;
     tokens.shift();
-    if (!["PRIMARY KEY", "UNIQUE", "UNIQUE KEY", "UNIQUE INDEX", "FOREIGN KEY"].includes(tokens[1])) {
-     constraint = stripBackQuote(tokens.shift());
+    if (
+      ![
+        "PRIMARY KEY",
+        "UNIQUE",
+        "UNIQUE KEY",
+        "UNIQUE INDEX",
+        "FOREIGN KEY",
+      ].includes(tokens[1])
+    ) {
+      constraint = stripBackQuote(tokens.shift());
     }
   }
 
   switch (tokens[0]) {
-    case 'INDEX':
-    case 'KEY':
-    case 'UNIQUE':
-    case 'UNIQUE INDEX':
-    case 'UNIQUE KEY':
+    case "INDEX":
+    case "KEY":
+    case "UNIQUE":
+    case "UNIQUE INDEX":
+    case "UNIQUE KEY":
       //todo index parse
       return null;
     case "PRIMARY KEY":
       //todo primary key parse
       return null;
-    case 'FULLTEXT':
-    case 'FULLTEXT INDEX':
-    case 'FULLTEXT KEY':
-    case 'SPATIAL':
-    case 'SPATIAL INDEX':
-    case 'SPATIAL KEY':
+    case "FULLTEXT":
+    case "FULLTEXT INDEX":
+    case "FULLTEXT KEY":
+    case "SPATIAL":
+    case "SPATIAL INDEX":
+    case "SPATIAL KEY":
       //todo index parse
       return null;
     case "FOREIGN KEY":
@@ -409,27 +448,27 @@ function parseField(tokens: string[]): SqlField | null {
   field.type = tokens.shift()!.toUpperCase();
 
   switch (field.type) {
-    case 'DATE':
-    case 'YEAR':
-    case 'TINYBLOB':
-    case 'BLOB':
-    case 'MEDIUMBLOB':
-    case 'LONGBLOB':
-    case 'GEOMETRY':
-    case 'POINT':
-    case 'LINESTRING':
-    case 'POLYGON':
-    case 'MULTIPOINT':
-    case 'MULTILINESTRING':
-    case 'MULTIPOLYGON':
-    case 'GEOMETRYCOLLECTION':
-    case 'BOOLEAN':
-    case 'BOOL':
+    case "DATE":
+    case "YEAR":
+    case "TINYBLOB":
+    case "BLOB":
+    case "MEDIUMBLOB":
+    case "LONGBLOB":
+    case "GEOMETRY":
+    case "POINT":
+    case "LINESTRING":
+    case "POLYGON":
+    case "MULTIPOINT":
+    case "MULTILINESTRING":
+    case "MULTIPOLYGON":
+    case "GEOMETRYCOLLECTION":
+    case "BOOLEAN":
+    case "BOOL":
       // nothing more to read
       break;
-    case 'TIME':
-    case 'TIMESTAMP':
-    case 'DATETIME':
+    case "TIME":
+    case "TIMESTAMP":
+    case "DATETIME":
       if (tokens.length >= 3) {
         if (tokens[0] === "(" && tokens[2] === ")") {
           const fsp = tokens[1];
@@ -437,64 +476,64 @@ function parseField(tokens: string[]): SqlField | null {
         }
       }
       break;
-    case 'TINYINT':
-    case 'SMALLINT':
-    case 'MEDIUMINT':
-    case 'INT':
-    case 'INTEGER':
-    case 'BIGINT':
+    case "TINYINT":
+    case "SMALLINT":
+    case "MEDIUMINT":
+    case "INT":
+    case "INTEGER":
+    case "BIGINT":
       parseFieldLength(tokens, field);
       parseFieldUnsigned(tokens, field);
       parseFieldZerofill(tokens, field);
       break;
-    case 'REAL':
-    case 'DOUBLE':
-    case 'DOUBLE PRECISION':
-    case 'FLOAT':
+    case "REAL":
+    case "DOUBLE":
+    case "DOUBLE PRECISION":
+    case "FLOAT":
       parseFieldLengthDecimals(tokens, field);
       parseFieldUnsigned(tokens, field);
       parseFieldZerofill(tokens, field);
       break;
-    case 'DECIMAL':
-    case 'NUMERIC':
-    case 'DEC':
-    case 'FIXED':
+    case "DECIMAL":
+    case "NUMERIC":
+    case "DEC":
+    case "FIXED":
       parseFieldLengthDecimals(tokens, field);
       parseFieldLength(tokens, field);
       parseFieldUnsigned(tokens, field);
       parseFieldZerofill(tokens, field);
       break;
-    case 'BIT':
-    case 'BINARY':
+    case "BIT":
+    case "BINARY":
       parseFieldLength(tokens, field);
       break;
-    case 'VARBINARY':
+    case "VARBINARY":
       parseFieldLength(tokens, field);
       break;
-    case 'CHAR':
+    case "CHAR":
       parseFieldBinary(tokens, field);
       parseFieldLength(tokens, field);
       parseFieldCharset(tokens, field);
       parseFieldCollate(tokens, field);
       break;
-    case 'VARCHAR':
-    case 'CHARACTER VARYING':
+    case "VARCHAR":
+    case "CHARACTER VARYING":
       parseFieldBinary(tokens, field);
       parseFieldLength(tokens, field);
       parseFieldCharset(tokens, field);
       parseFieldCollate(tokens, field);
       break;
-    case 'TINYTEXT':
-    case 'TEXT':
-    case 'MEDIUMTEXT':
-    case 'LONGTEXT':
-    case 'JSON':
+    case "TINYTEXT":
+    case "TEXT":
+    case "MEDIUMTEXT":
+    case "LONGTEXT":
+    case "JSON":
       parseFieldBinary(tokens, field);
       parseFieldCharset(tokens, field);
       parseFieldCollate(tokens, field);
       break;
-    case 'ENUM':
-    case 'SET':
+    case "ENUM":
+    case "SET":
       parseValueList(tokens);
       parseFieldCharset(tokens, field);
       parseFieldCharset(tokens, field);
@@ -524,8 +563,6 @@ function parseField(tokens: string[]): SqlField | null {
   }
 
   return field;
-
-
 }
 
 function parseFieldLength(tokens: string[], field: SqlField): void {
@@ -551,7 +588,12 @@ function parseFieldZerofill(tokens: string[], field: SqlField): void {
 }
 
 function parseFieldLengthDecimals(tokens: string[], field: SqlField): void {
-  if (tokens.length >= 5 && tokens[0] === "(" && tokens[2] === "," && tokens[4] === ")") {
+  if (
+    tokens.length >= 5 &&
+    tokens[0] === "(" &&
+    tokens[2] === "," &&
+    tokens[4] === ")"
+  ) {
     field.length = Number(tokens[1]);
     for (let i = 0; i < 5; i++) {
       tokens.shift();
@@ -609,14 +651,14 @@ function parseValueList(tokens: string[]): string[] | null {
 }
 
 function decodeValue(token: string): string {
-  if (token[0] === "'" || token[0] === "\"") {
-    const newLines: Map<string, string>  = new Map<string, string>([
+  if (token[0] === "'" || token[0] === '"') {
+    const newLines: Map<string, string> = new Map<string, string>([
       ["n", "\n"],
       ["r", "\r"],
       ["t", "\t"],
     ]);
     let value = "";
-    for (let i =0; i < token.length -1; i++) {
+    for (let i = 0; i < token.length - 1; i++) {
       if (token[i] == "\\") {
         if (newLines.get(token[i + 1])) {
           value += newLines.get(token[i + 1]);
@@ -665,14 +707,20 @@ function parseTableName(statement: Statement): string {
 function parseTable(statements: Statement[]) {
   const tables: Table[] = [];
   for (let statement of statements) {
-    if (statement.tokens[statement.pointer++] === "CREATE TABLE" || statement.tokens[statement.pointer++] === "CREATE TEMPORARY TABLE") {
+    if (
+      statement.tokens[statement.pointer++] === "CREATE TABLE" ||
+      statement.tokens[statement.pointer++] === "CREATE TEMPORARY TABLE"
+    ) {
       const tableName = upperCamelize(parseTableName(statement), "TableName");
 
       const fields: SqlField[] = [];
       if (tokenIncluded(statement, "(")) {
         statement.pointer++;
 
-        while (statement.pointer < statement.tokens.length && statement.tokens[statement.pointer] !== ")") {
+        while (
+          statement.pointer < statement.tokens.length &&
+          statement.tokens[statement.pointer] !== ")"
+        ) {
           const fieldTokens = extractFieldTokens(statement);
           const optionalField: SqlField | null = parseField(fieldTokens);
           optionalField !== null && fields.push(optionalField);
@@ -683,7 +731,6 @@ function parseTable(statements: Statement[]) {
           fields,
           sql: statement.sql,
         });
-
       }
     }
   }
@@ -695,7 +742,8 @@ function camelize(value: string, defaultValue: string = "") {
   if (!value) {
     return defaultValue;
   }
-  return  value.replaceAll(/(?<=_|\s)[a-z]/g, matchedWord => matchedWord.toUpperCase())
+  return value
+    .replaceAll(/(?<=_|\s)[a-z]/g, (matchedWord) => matchedWord.toUpperCase())
     .replaceAll(/[_\s]+/g, "");
 }
 
@@ -705,8 +753,8 @@ function upperCamelize(value: string, defaultValue: string = "") {
     return defaultValue;
   }
 
-  return ((value[0].toUpperCase() + value.slice(1)))
-    .replaceAll(/(?<=_|\s)[a-z]/g, matchedWord => matchedWord.toUpperCase())
+  return (value[0].toUpperCase() + value.slice(1))
+    .replaceAll(/(?<=_|\s)[a-z]/g, (matchedWord) => matchedWord.toUpperCase())
     .replaceAll(/[_\s]+/g, "");
 }
 
@@ -716,12 +764,18 @@ function underscore(value: string, defaultValue: string = "") {
     return defaultValue;
   }
   return value
-    .replaceAll(/(?<=.)[A-Z]/g, matchedWord => "_" + matchedWord.toLowerCase())
-    .replaceAll(/\s+/g, matchedWord => "_")
+    .replaceAll(
+      /(?<=.)[A-Z]/g,
+      (matchedWord) => "_" + matchedWord.toLowerCase()
+    )
+    .replaceAll(/\s+/g, (matchedWord) => "_")
     .replaceAll(/[\s]+/g, "");
 }
 
-function formatFieldName(fieldName: string, type: NameType = NameType.CAMEL_CASE): string {
+function formatFieldName(
+  fieldName: string,
+  type: NameType = NameType.CAMEL_CASE
+): string {
   switch (type) {
     case NameType.UNDERSCORE:
       return underscore(fieldName);
