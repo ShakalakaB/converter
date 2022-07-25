@@ -37,7 +37,6 @@ export const SqlParser: FC = () => {
       getterAndSetterIncluded
     );
     setEntityCode(javaCode);
-    // setEntityCode(event.currentTarget.sqlSchema?.value);
     console.log(entityCode);
   };
 

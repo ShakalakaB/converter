@@ -58,7 +58,7 @@ export class SqlSchemaParserUtil {
           javaCode += "\t" + `}\n\n`;
         }
       }
-      javaCode += "}";
+      javaCode += "}\n";
     }
     return javaCode;
   }
