@@ -39,7 +39,7 @@ export const SqlParser: FC = () => {
 
   return (
     <div className="row">
-      <form className="col-7" onSubmit={submitHandler}>
+      <form className="col-xl-7" onSubmit={submitHandler}>
         <div className="row">
           <textarea
             // style={{ height: "27rem" }}
@@ -48,13 +48,13 @@ export const SqlParser: FC = () => {
               resize: "none",
               fontFamily: "monospace",
             }}
-            className="col-9 border border-5"
+            className="col-xl-9 border border-5"
             // rows={20}
             id="sqlSchema"
             aria-describedby="sql-schema-input"
             defaultValue={exampleSqlSchema}
           />
-          <div className="col-3">
+          <div className="col-xl-3 my-3" id="convertorConfig">
             <div className="form-check mb-3">
               <label
                 className="form-check-label"
@@ -103,9 +103,13 @@ export const SqlParser: FC = () => {
         </div>
       </form>
       <textarea
-        className="col-5 border border-5"
+        className="col-xl-5 border border-5"
         defaultValue={entityCode}
-        style={{ resize: "none", fontFamily: "monospace" }}
+        style={{
+          height: "calc(100vh - 20vh)",
+          resize: "none",
+          fontFamily: "monospace",
+        }}
       />
     </div>
   );

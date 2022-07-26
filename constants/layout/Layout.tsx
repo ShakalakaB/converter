@@ -5,7 +5,7 @@ export const Layout: FC<PropsWithChildren<{}>> = ({ children }) => (
   <>
     <NavBar />
 
-    <main className="container-fluid px-3">{children}</main>
+    <main className="container-fluid px-3 mb-3">{children}</main>
 
     <footer
       style={{
