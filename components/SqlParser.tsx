@@ -41,6 +41,15 @@ export const SqlParser: FC = () => {
     <div className="row">
       <form className="col-7" onSubmit={submitHandler}>
         <div className="row">
+          <textarea
+            // style={{ height: "27rem" }}
+            style={{ height: "calc(100vh - 20vh)" }}
+            className="col-9"
+            // rows={20}
+            id="sqlSchema"
+            aria-describedby="sql-schema-input"
+            defaultValue={exampleSqlSchema}
+          />
           <div className="col-3">
             <div className="form-check mb-3">
               <label
@@ -87,15 +96,6 @@ export const SqlParser: FC = () => {
               Submit
             </button>
           </div>
-          <textarea
-            // style={{ height: "27rem" }}
-            style={{ height: "calc(100vh - 16rem)" }}
-            className="col-9"
-            // rows={20}
-            id="sqlSchema"
-            aria-describedby="sql-schema-input"
-            defaultValue={exampleSqlSchema}
-          />
         </div>
       </form>
       <textarea className="col-5" defaultValue={entityCode}></textarea>
