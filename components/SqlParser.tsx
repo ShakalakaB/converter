@@ -38,7 +38,7 @@ export const SqlParser: FC = () => {
   };
 
   return (
-    <div className="row">
+    <div className="row px-3 px-xl-1 mb-3">
       <form className="col-xl-7" onSubmit={submitHandler}>
         <div className="row">
           <textarea
