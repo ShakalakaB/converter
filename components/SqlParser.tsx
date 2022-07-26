@@ -43,8 +43,12 @@ export const SqlParser: FC = () => {
         <div className="row">
           <textarea
             // style={{ height: "27rem" }}
-            style={{ height: "calc(100vh - 20vh)" }}
-            className="col-9"
+            style={{
+              height: "calc(100vh - 20vh)",
+              resize: "none",
+              fontFamily: "monospace",
+            }}
+            className="col-9 border border-5"
             // rows={20}
             id="sqlSchema"
             aria-describedby="sql-schema-input"
@@ -98,7 +102,11 @@ export const SqlParser: FC = () => {
           </div>
         </div>
       </form>
-      <textarea className="col-5" defaultValue={entityCode}></textarea>
+      <textarea
+        className="col-5 border border-5"
+        defaultValue={entityCode}
+        style={{ resize: "none", fontFamily: "monospace" }}
+      />
     </div>
   );
 };

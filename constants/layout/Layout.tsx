@@ -1,25 +1,25 @@
 import { FC, PropsWithChildren } from "react";
 import { NavBar } from "./NavBar";
-import { SqlParser } from "../../components/SqlParser";
 
 export const Layout: FC<PropsWithChildren<{}>> = ({ children }) => (
   <>
     <NavBar />
 
-    <main className="container-fluid">{children}</main>
+    <main className="container-fluid px-3">{children}</main>
 
-    <footer>
-      footer
-      {/*<a*/}
-      {/*  href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"*/}
-      {/*  target="_blank"*/}
-      {/*  rel="noopener noreferrer"*/}
-      {/*>*/}
-      {/*  Powered by{" "}*/}
-      {/*  <span className={styles.logo}>*/}
-      {/*    <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />*/}
-      {/*  </span>*/}
-      {/*</a>*/}
+    <footer
+      style={{
+        color: "rgb(48, 48, 48)",
+        fontSize: "12px",
+        textAlign: "center",
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        width: "100%",
+        // border: "2px solid black",
+      }}
+    >
+      Copyright © 2022 convertor.aldoraweb.com
     </footer>
   </>
 );

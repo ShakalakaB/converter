@@ -314,6 +314,11 @@
     "minimatch" "^3.1.2"
     "strip-json-comments" "^3.1.1"
 
+"@fontsource/source-code-pro@^4.5.10":
+  "integrity" "sha512-sdWZq4X3iCE/7J0FLU9e/PDlBv33gYSrDv8QDMzJCKneO8pYZZJjkD7873VT/NCsPMaqk3bGw4qAnjs2ERV8PQ=="
+  "resolved" "https://registry.npmjs.org/@fontsource/source-code-pro/-/source-code-pro-4.5.10.tgz"
+  "version" "4.5.10"
+
 "@humanwhocodes/config-array@^0.9.2":
   "integrity" "sha512-ObyMyWxZiCu/yTisA7uzx81s40xR2fD5Cg/2Kq7G02ajkNubJf6BopgDTmDyc3U7sXpNKM8cYOw7s7Tyr+DnCw=="
   "resolved" "https://registry.npmjs.org/@humanwhocodes/config-array/-/config-array-0.9.5.tgz"
