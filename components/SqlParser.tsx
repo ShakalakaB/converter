@@ -60,7 +60,7 @@ export const SqlParser: FC = () => {
                 className="form-check-label"
                 htmlFor="getterAndSetterInput"
               >
-                getters and setters
+                Getters and Setters
               </label>
               <input
                 className="form-check-input"
@@ -71,7 +71,7 @@ export const SqlParser: FC = () => {
             </div>
             <div className="form-check">
               <label className="form-check-label" htmlFor="camelcaseInput">
-                camel case
+                Camel Case
               </label>
               <input
                 className="form-check-input"
@@ -85,7 +85,7 @@ export const SqlParser: FC = () => {
             </div>
             <div className="form-check mb-3">
               <label className="form-check-label" htmlFor="underscoreInput">
-                underscore
+                Underscore
               </label>
               <input
                 className="form-check-input"
