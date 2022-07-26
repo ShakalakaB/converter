@@ -1,7 +1,4 @@
-import { FC, FormEvent, PropsWithChildren, useEffect, useState } from "react";
-import { func, number, string } from "prop-types";
-import { SqlToken } from "../constants/SqlToken";
-import { SqlToJavaDataType } from "../constants/SqlToJavaDataType";
+import { FC, FormEvent, useState } from "react";
 import { NameType } from "../models/SqlModels";
 import { SqlSchemaParserUtil } from "../utils/SqlSchemaParserUtil";
 
@@ -25,15 +22,15 @@ export const SqlParser: FC = () => {
 
   const [entityCode, setEntityCode] = useState<string>("");
 
-  let nameType = NameType.CAMEL_CASE;
-  let getterAndSetterIncluded = false;
-
   const submitHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     event.stopPropagation();
+    const nameType = event.currentTarget.nameType?.value;
+    const getterAndSetterIncluded =
+      event.currentTarget.getterAndSetter?.checked;
     const javaCode = SqlSchemaParserUtil.parseSchema(
       event.currentTarget.sqlSchema?.value,
-      nameType,
+      NameType[nameType as keyof typeof NameType],
       getterAndSetterIncluded
     );
     setEntityCode(javaCode);
@@ -42,26 +39,66 @@ export const SqlParser: FC = () => {
 
   return (
     <div className="row">
-      <form className="col-6" onSubmit={submitHandler}>
-        <div className="mb-3">
-          <label htmlFor="sqlSchema" className="form-label">
-            sql schema
-          </label>
+      <form className="col-7" onSubmit={submitHandler}>
+        <div className="row">
+          <div className="col-3">
+            <div className="form-check mb-3">
+              <label
+                className="form-check-label"
+                htmlFor="getterAndSetterInput"
+              >
+                getters and setters
+              </label>
+              <input
+                className="form-check-input"
+                type="checkbox"
+                name="getterAndSetter"
+                id="getterAndSetterInput"
+              />
+            </div>
+            <div className="form-check">
+              <label className="form-check-label" htmlFor="camelcaseInput">
+                camel case
+              </label>
+              <input
+                className="form-check-input"
+                type="radio"
+                name="nameType"
+                // value="camelCase"
+                value={NameType[NameType.CAMEL_CASE]}
+                id="camelcaseInput"
+                checked
+              />
+            </div>
+            <div className="form-check mb-3">
+              <label className="form-check-label" htmlFor="underscoreInput">
+                underscore
+              </label>
+              <input
+                className="form-check-input"
+                type="radio"
+                name="nameType"
+                // value="underscore"
+                value={NameType[NameType.UNDERSCORE]}
+                id="underscoreInput"
+              />
+            </div>
+            <button className="btn btn-primary" type="submit">
+              Submit
+            </button>
+          </div>
           <textarea
-            className="form-control"
-            rows={20}
+            // style={{ height: "27rem" }}
+            style={{ height: "calc(100vh - 16rem)" }}
+            className="col-9"
+            // rows={20}
             id="sqlSchema"
             aria-describedby="sql-schema-input"
-            placeholder="schema"
             defaultValue={exampleSqlSchema}
           />
         </div>
-
-        <button className="btn btn-primary" type="submit">
-          Submit
-        </button>
       </form>
-      <textarea className="col-6" defaultValue={entityCode}></textarea>
+      <textarea className="col-5" defaultValue={entityCode}></textarea>
     </div>
   );
 };

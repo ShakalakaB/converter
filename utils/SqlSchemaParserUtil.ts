@@ -29,7 +29,10 @@ export class SqlSchemaParserUtil {
       tokenPosition
     );
 
-    const tables: Table[] = SqlSchemaParserUtil.parseTable(statements);
+    const tables: Table[] = SqlSchemaParserUtil.parseTable(
+      statements,
+      nameType
+    );
 
     let javaCode: string = "";
     for (let table of tables) {
@@ -330,7 +333,10 @@ export class SqlSchemaParserUtil {
     return tokens;
   }
 
-  private static parseField(tokens: string[]): SqlField | null {
+  private static parseField(
+    tokens: string[],
+    nameType: NameType
+  ): SqlField | null {
     let hasConstraint = false;
     let constraint = null;
 
@@ -379,7 +385,8 @@ export class SqlSchemaParserUtil {
 
     const field = new SqlField();
     field.name = SqlSchemaParserUtil.formatFieldName(
-      SqlSchemaParserUtil.stripBackQuote(tokens.shift())
+      SqlSchemaParserUtil.stripBackQuote(tokens.shift()),
+      nameType
     );
 
     field.type = tokens.shift()!.toUpperCase();
@@ -644,7 +651,7 @@ export class SqlSchemaParserUtil {
     return name;
   }
 
-  private static parseTable(statements: Statement[]) {
+  private static parseTable(statements: Statement[], nameType: NameType) {
     const tables: Table[] = [];
     for (let statement of statements) {
       if (
@@ -667,7 +674,7 @@ export class SqlSchemaParserUtil {
             const fieldTokens =
               SqlSchemaParserUtil.extractFieldTokens(statement);
             const optionalField: SqlField | null =
-              SqlSchemaParserUtil.parseField(fieldTokens);
+              SqlSchemaParserUtil.parseField(fieldTokens, nameType);
             optionalField !== null && fields.push(optionalField);
           }
 
