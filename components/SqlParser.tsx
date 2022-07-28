@@ -49,7 +49,6 @@ export const SqlParser: FC = () => {
               fontFamily: "monospace",
             }}
             className="col-xl-9 border border-5"
-            // rows={20}
             id="sqlSchema"
             aria-describedby="sql-schema-input"
             defaultValue={exampleSqlSchema}
