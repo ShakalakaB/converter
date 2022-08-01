@@ -66,7 +66,7 @@ export const NavBar = () => {
               <li className="nav-item">
                 <Link aria-current="page" href="/sql2entity">
                   {/*todo enlarge font size*/}
-                  <a className="nav-link active">sql2entity</a>
+                  <a className="nav-link active fs-5 fw-bold">sql2entity</a>
                 </Link>
               </li>
             </ul>

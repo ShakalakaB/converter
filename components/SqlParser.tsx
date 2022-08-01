@@ -1,6 +1,11 @@
-import { FC, FormEvent, useState } from "react";
+import { FC, FormEvent, useEffect, useState } from "react";
 import { NameType } from "../models/SqlModels";
 import { SqlSchemaParserUtil } from "../utils/SqlSchemaParserUtil";
+import Prism from "prismjs";
+// import "prismjs/themes/prism-tomorrow.css";
+import "prismjs/themes/prism-solarizedlight.css";
+import "prismjs/plugins/line-numbers/prism-line-numbers.css";
+import "prismjs/plugins/line-numbers/prism-line-numbers.js";
 
 // https://docs.microsoft.com/en-us/sql/language-extensions/how-to/java-to-sql-data-types?view=sql-server-ver16
 // https://www.w3schools.com/sql/sql_datatypes.asp
@@ -22,6 +27,10 @@ export const SqlParser: FC = () => {
 
   const [entityCode, setEntityCode] = useState<string>("");
 
+  useEffect(() => {
+    Prism.highlightAll();
+  }, [entityCode]);
+
   const submitHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -33,16 +42,25 @@ export const SqlParser: FC = () => {
       NameType[nameType as keyof typeof NameType],
       getterAndSetterIncluded
     );
-    setEntityCode(javaCode);
-    console.log(entityCode);
+    const remarkedCode = Prism.highlight(
+      javaCode,
+      Prism.languages.javascript,
+      "java"
+    );
+    console.log(remarkedCode);
+    setEntityCode(remarkedCode);
+    // setEntityCode(javaCode);
   };
+
+  const codeSample = `<div className="example">
+  {Math.random()}
+</div>`;
 
   return (
     <div className="row px-3 px-xl-1 mb-3">
       <form className="col-xl-7" onSubmit={submitHandler}>
         <div className="row">
           <textarea
-            // style={{ height: "27rem" }}
             style={{
               height: "calc(100vh - 20vh)",
               resize: "none",
@@ -101,15 +119,39 @@ export const SqlParser: FC = () => {
           </div>
         </div>
       </form>
-      <textarea
-        className="col-xl-5 border border-5"
-        defaultValue={entityCode}
+      {/*<div*/}
+      {/*  className="col-xl-5 border border-5"*/}
+      {/*  style={{*/}
+      {/*    height: "calc(100vh - 20vh)",*/}
+      {/*    resize: "none",*/}
+      {/*    fontFamily: "monospace",*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*<pre*/}
+      {/*  className="line-numbers"*/}
+      {/*  dangerouslySetInnerHTML={{ __html: entityCode }}*/}
+      {/*/>*/}
+      <pre
+        className="line-numbers col-xl-5 border border-5"
         style={{
           height: "calc(100vh - 20vh)",
           resize: "none",
           fontFamily: "monospace",
         }}
-      />
+      >
+        {/*<code*/}
+        {/*  // className="language-java"*/}
+        {/*  dangerouslySetInnerHTML={{ __html: entityCode }}*/}
+        {/*/>*/}
+        <code
+          className="language-java"
+          dangerouslySetInnerHTML={{ __html: entityCode }}
+        />
+        {/*<code className="language-java">{entityCode}</code>*/}
+
+        {/*  </code>*/}
+      </pre>
+      {/*</div>*/}
     </div>
   );
 };
