@@ -1,10 +1,12 @@
-import { FC, FormEvent, useEffect, useState } from "react";
+import React, { FC, FormEvent, useEffect, useState } from "react";
 import { NameType } from "../models/SqlModels";
 import { SqlSchemaParserUtil } from "../utils/SqlSchemaParserUtil";
 import Prism from "prismjs";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
+import "prismjs/plugins/toolbar/prism-toolbar.css";
 import "prismjs/themes/prism-solarizedlight.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 export const SqlParser: FC = () => {
   const exampleSqlSchema =
@@ -80,7 +82,6 @@ export const SqlParser: FC = () => {
                 className="form-check-input"
                 type="radio"
                 name="nameType"
-                // value="camelCase"
                 value={NameType[NameType.CAMEL_CASE]}
                 id="camelcaseInput"
                 checked
@@ -94,7 +95,6 @@ export const SqlParser: FC = () => {
                 className="form-check-input"
                 type="radio"
                 name="nameType"
-                // value="underscore"
                 value={NameType[NameType.UNDERSCORE]}
                 id="underscoreInput"
               />
@@ -105,19 +105,42 @@ export const SqlParser: FC = () => {
           </div>
         </div>
       </form>
-      <pre
-        className="line-numbers col-xl-5 border border-5"
+      <div
+        className="col-xl-5 border border-5 p-0"
         style={{
+          position: "relative",
           height: "calc(100vh - 20vh)",
           resize: "none",
           fontFamily: "monospace",
         }}
       >
-        <code
-          className="language-javascript"
-          dangerouslySetInnerHTML={{ __html: entityCode }}
-        />
-      </pre>
+        <button
+          type="button"
+          className="btn btn-light "
+          title="Copy to clipboard"
+          style={{
+            position: "absolute",
+            right: "0.8em",
+            top: "0.3em",
+            zIndex: 1,
+          }}
+        >
+          <i className="bi bi-clipboard" />
+        </button>
+        <pre
+          className="line-numbers m-0"
+          style={{
+            height: "calc(100vh - 21vh)",
+            resize: "none",
+            fontFamily: "monospace",
+          }}
+        >
+          <code
+            className="language-javascript"
+            dangerouslySetInnerHTML={{ __html: entityCode }}
+          />
+        </pre>
+      </div>
     </div>
   );
 };
