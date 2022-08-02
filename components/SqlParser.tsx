@@ -2,28 +2,24 @@ import { FC, FormEvent, useEffect, useState } from "react";
 import { NameType } from "../models/SqlModels";
 import { SqlSchemaParserUtil } from "../utils/SqlSchemaParserUtil";
 import Prism from "prismjs";
-// import "prismjs/themes/prism-tomorrow.css";
-import "prismjs/themes/prism-solarizedlight.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import "prismjs/plugins/line-numbers/prism-line-numbers.js";
-
-// https://docs.microsoft.com/en-us/sql/language-extensions/how-to/java-to-sql-data-types?view=sql-server-ver16
-// https://www.w3schools.com/sql/sql_datatypes.asp
+import "prismjs/themes/prism-solarizedlight.css";
 
 export const SqlParser: FC = () => {
   const exampleSqlSchema =
     "CREATE TABLE DbName.TableName ( \n" +
-    "                    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, \n" +
-    "                    errcnt INT(10) UNSIGNED NOT NULL DEFAULT '0', \n" +
-    "                    user_id INT UNSIGNED NOT NULL, \n" +
-    "                    photo_id INT UNSIGNED NOT NULL, \n" +
-    "                    place_id INT UNSIGNED NOT NULL, \n" +
-    "                    next_processing_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, \n" +
-    "                    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, \n" +
-    "                    PRIMARY KEY (id), \n" +
-    "                    KEY (place_id, next_processing_time), \n" +
-    "                    UNIQUE KEY (user_id, place_id, photo_id) \n" +
-    "                ); create table";
+    "   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, \n" +
+    "   errcnt INT(10) UNSIGNED NOT NULL DEFAULT '0', \n" +
+    "   user_id INT UNSIGNED NOT NULL, \n" +
+    "   photo_id INT UNSIGNED NOT NULL, \n" +
+    "   place_id INT UNSIGNED NOT NULL, \n" +
+    "   next_processing_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, \n" +
+    "   created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, \n" +
+    "   PRIMARY KEY (id), \n" +
+    "   KEY (place_id, next_processing_time), \n" +
+    "   UNIQUE KEY (user_id, place_id, photo_id) \n" +
+    "); create table";
 
   const [entityCode, setEntityCode] = useState<string>("");
 
@@ -42,19 +38,9 @@ export const SqlParser: FC = () => {
       NameType[nameType as keyof typeof NameType],
       getterAndSetterIncluded
     );
-    const remarkedCode = Prism.highlight(
-      javaCode,
-      Prism.languages.javascript,
-      "java"
-    );
-    console.log(remarkedCode);
-    setEntityCode(remarkedCode);
-    // setEntityCode(javaCode);
-  };
 
-  const codeSample = `<div className="example">
-  {Math.random()}
-</div>`;
+    setEntityCode(javaCode);
+  };
 
   return (
     <div className="row px-3 px-xl-1 mb-3">
@@ -119,18 +105,6 @@ export const SqlParser: FC = () => {
           </div>
         </div>
       </form>
-      {/*<div*/}
-      {/*  className="col-xl-5 border border-5"*/}
-      {/*  style={{*/}
-      {/*    height: "calc(100vh - 20vh)",*/}
-      {/*    resize: "none",*/}
-      {/*    fontFamily: "monospace",*/}
-      {/*  }}*/}
-      {/*>*/}
-      {/*<pre*/}
-      {/*  className="line-numbers"*/}
-      {/*  dangerouslySetInnerHTML={{ __html: entityCode }}*/}
-      {/*/>*/}
       <pre
         className="line-numbers col-xl-5 border border-5"
         style={{
@@ -139,19 +113,11 @@ export const SqlParser: FC = () => {
           fontFamily: "monospace",
         }}
       >
-        {/*<code*/}
-        {/*  // className="language-java"*/}
-        {/*  dangerouslySetInnerHTML={{ __html: entityCode }}*/}
-        {/*/>*/}
         <code
-          className="language-java"
+          className="language-javascript"
           dangerouslySetInnerHTML={{ __html: entityCode }}
         />
-        {/*<code className="language-java">{entityCode}</code>*/}
-
-        {/*  </code>*/}
       </pre>
-      {/*</div>*/}
     </div>
   );
 };
