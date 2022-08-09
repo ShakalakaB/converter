@@ -344,7 +344,7 @@ export class SqlSchemaParserUtil {
       hasConstraint = true;
       tokens.shift();
       if (
-        ![
+        [
           "PRIMARY KEY",
           "UNIQUE",
           "UNIQUE KEY",

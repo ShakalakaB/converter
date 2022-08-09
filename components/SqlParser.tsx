@@ -21,7 +21,7 @@ export const SqlParser: FC = () => {
     "   PRIMARY KEY (id), \n" +
     "   KEY (place_id, next_processing_time), \n" +
     "   UNIQUE KEY (user_id, place_id, photo_id) \n" +
-    "); create table";
+    "); ";
 
   const [entityCode, setEntityCode] = useState<string>("");
 
