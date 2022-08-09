@@ -48,6 +48,18 @@ const Home: NextPage = () => {
         />
         <meta name="og.url" content="https://convertor.aldoraweb.com" />
         <meta name="og.site_name" content="convertor.aldoraweb.com" />
+        <meta
+          name="twitter:card"
+          content="Convertor | SQL Table to Entity Class Generator "
+        />
+        <meta
+          name="twitter:title"
+          content="Online SQL Table to Entity Class Generator"
+        />
+        <meta
+          name="twitter:description"
+          content="Generate class from database table online, convert a 'CREATE TABLE' script from MS-SQL, ORACLE, MYSQL,POSTGRESQL, SQLite database to class in C#, TypeScript, VB.NET, JAVA, PHP, JavaScript, Python and more programming languages."
+        />
         <meta name="twitter:url" content="https://convertor.aldoraweb.com" />
         <meta
           name="twitter:image"
