@@ -1,5 +1,5 @@
-# sql2entity
-Convert sql schema to java pojo
+# convertor
+## Convert sql schema to java pojo
 
 ## Introduction
 This project aims to convert sql schema to entity code.
