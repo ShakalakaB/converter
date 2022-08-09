@@ -48,10 +48,7 @@ const Home: NextPage = () => {
         />
         <meta name="og.url" content="https://convertor.aldoraweb.com" />
         <meta name="og.site_name" content="convertor.aldoraweb.com" />
-        <meta
-          name="twitter:card"
-          content="Convertor | SQL Table to Entity Class Generator "
-        />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:title"
           content="Online SQL Table to Entity Class Generator"
