@@ -6,26 +6,39 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+#  bucket_name: "<example-bucket-name>"
+  aws_region: us-east-1
+
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup repo
+      - name: Git clone the repository
         uses: actions/checkout@v3
 
-      - name: Setup Deno
-      # uses: denoland/setup-deno@v1
-        uses: denoland/setup-deno@004814556e37c54a2f6e31384c9e18e983317366
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          deno-version: v1.x
+          role-to-assume: arn:aws:iam::951515720925:role/Cognito_convertor_github_actions_Auth_Role
+#          role-session-name: samplerolesession
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Run linter
         run: echo run linter
 
       - name: Run tests
         run: echo run xxxxx
+
+      - name: create file
+        run: |
+          cd ~
+          pwd
+          touch test
+        
 
