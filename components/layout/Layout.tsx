@@ -15,7 +15,7 @@ export const Layout: FC<PropsWithChildren<{}>> = ({ children }) => (
         textAlign: "center",
       }}
     >
-      Copyright © 2022 convertor.aldoraweb.com
+      Copyright © 2022 converter.aldoraweb.com
     </footer>
   </div>
 );

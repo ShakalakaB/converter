@@ -14,8 +14,8 @@ export const NavBar = () => {
         <Link className="navbar-brand" href="/" passHref>
           <a>
             <Image
-              src="/logo_transparent-1.png"
-              alt="convertor logo"
+              src="/logo_transparent.png"
+              alt="converter logo"
               width="90rem"
               height="70rem"
             />
@@ -47,7 +47,7 @@ export const NavBar = () => {
               id="offcanvasNavbarLabel"
               style={{ color: "white" }}
             >
-              Convertor
+              Converter
             </h5>
             <button
               type="button"

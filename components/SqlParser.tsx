@@ -59,7 +59,7 @@ export const SqlParser: FC = () => {
             aria-describedby="sql-schema-input"
             defaultValue={exampleSqlSchema}
           />
-          <div className="col-xl-3 my-3" id="convertorConfig">
+          <div className="col-xl-3 my-3" id="converterConfig">
             <div className="form-check mb-3">
               <label
                 className="form-check-label"
@@ -84,7 +84,7 @@ export const SqlParser: FC = () => {
                 name="nameType"
                 value={NameType[NameType.CAMEL_CASE]}
                 id="camelcaseInput"
-                checked
+                defaultChecked
               />
             </div>
             <div className="form-check mb-3">

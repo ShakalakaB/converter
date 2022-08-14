@@ -24,8 +24,8 @@ const Home: NextPage = () => {
       </Script>
 
       <Head>
-        <title>Convertor | Online convertor tools</title>
-        {/*<meta name="description" content="Online convertor tools" />*/}
+        <title>Converter | Online converter tools</title>
+        {/*<meta name="description" content="Online converter tools" />*/}
         <meta
           name="description"
           content="Generate class from database table online, convert a 'CREATE TABLE' script from MS-SQL, ORACLE, MYSQL,POSTGRESQL, SQLite database to class in C#, TypeScript, VB.NET, JAVA, PHP, JavaScript, Python and more programming languages."
@@ -36,7 +36,7 @@ const Home: NextPage = () => {
         />
         <meta
           name="og:title"
-          content="Convertor | SQL Table to Entity Class Generator "
+          content="Converter | SQL Table to Entity Class Generator "
         />
         <meta
           name="og.description"
@@ -44,10 +44,10 @@ const Home: NextPage = () => {
         />
         <meta
           name="og.image"
-          content="https://convertor.aldoraweb.com/logo.png"
+          content="https://converter.aldoraweb.com/logo.png"
         />
-        <meta name="og.url" content="https://convertor.aldoraweb.com" />
-        <meta name="og.site_name" content="convertor.aldoraweb.com" />
+        <meta name="og.url" content="https://converter.aldoraweb.com" />
+        <meta name="og.site_name" content="converter.aldoraweb.com" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:title"
@@ -57,10 +57,10 @@ const Home: NextPage = () => {
           name="twitter:description"
           content="Generate class from database table online, convert a 'CREATE TABLE' script from MS-SQL, ORACLE, MYSQL,POSTGRESQL, SQLite database to class in C#, TypeScript, VB.NET, JAVA, PHP, JavaScript, Python and more programming languages."
         />
-        <meta name="twitter:url" content="https://convertor.aldoraweb.com" />
+        <meta name="twitter:url" content="https://converter.aldoraweb.com" />
         <meta
           name="twitter:image"
-          content="https://convertor.aldoraweb.com/logo.png"
+          content="https://converter.aldoraweb.com/logo.png"
         />
         <meta name="twitter:label1" content="Written by" />
         <meta name="twitter:data1" content="1354" />
