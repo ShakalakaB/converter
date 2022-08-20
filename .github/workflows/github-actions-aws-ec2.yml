@@ -36,6 +36,7 @@ jobs:
         run: echo "$USER"
       - name: create file
         run: |
+          echo "$USER"
           pwd
           cd /opt
           mkdir app
