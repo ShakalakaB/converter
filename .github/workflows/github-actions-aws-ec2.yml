@@ -25,7 +25,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::951515720925:role/github-actions-converter
-#          role-session-name: samplerolesession
+          role-session-name: samplerolesession
           aws-region: ${{ env.AWS_REGION }}
       - name: Run linter
         run: echo run linter
