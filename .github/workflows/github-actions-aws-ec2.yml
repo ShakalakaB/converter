@@ -9,6 +9,9 @@ on:
 env:
 #  bucket_name: "<example-bucket-name>"
   AWS_REGION: us-east-1
+  REMOTE_HOST: "ec2-54-235-234-66.compute-1.amazonaws.com"
+  REMOTE_USER: "ec2-user"
+  TARGET: "/home/ec2-user/repos/converter"
 
 permissions:
   contents: read
@@ -27,13 +30,12 @@ jobs:
           role-to-assume: arn:aws:iam::951515720925:role/github-actions-converter
           role-session-name: samplerolesession
           aws-region: ${{ env.AWS_REGION }}
-      - name: Run linter
-        run: echo run linter
-      - name: Run tests
-        run: echo run xxxxx
+          remote-host: ${{ env.REMOTE_HOST }}
+      - name: Show user name
+        run: echo "$USER"
       - name: create file
         run: |
-          cd ~
+          cd /home/ec2-user
           pwd
           touch test
         
