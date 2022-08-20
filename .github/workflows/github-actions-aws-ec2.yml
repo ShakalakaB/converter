@@ -1,4 +1,4 @@
-name: convertor-deploy-aws-ec2
+name: converter-deploy-aws-ec2
 
 on:
   push:
@@ -21,20 +21,16 @@ jobs:
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
-
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::951515720925:role/Cognito_convertergithubactionsAuth_Role
+          role-to-assume: arn:aws:iam::951515720925:role/github-actions-converter
 #          role-session-name: samplerolesession
           aws-region: ${{ env.AWS_REGION }}
-
       - name: Run linter
         run: echo run linter
-
       - name: Run tests
         run: echo run xxxxx
-
       - name: create file
         run: |
           cd ~
