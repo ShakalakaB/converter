@@ -35,8 +35,8 @@ jobs:
         run: echo "$USER"
       - name: create file
         run: |
-          cd /home/ec2-user
           pwd
-          touch test
+          cd /opt
+          mkdir app
         
 
