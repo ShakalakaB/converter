@@ -25,7 +25,7 @@ jobs:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::951515720925:role/Cognito_convertor_github_actions_Auth_Role
+          role-to-assume: arn:aws:iam::951515720925:role/Cognito_convertergithubactionsAuth_Role
 #          role-session-name: samplerolesession
           aws-region: ${{ env.AWS_REGION }}
 
