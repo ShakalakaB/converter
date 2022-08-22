@@ -12,8 +12,7 @@ echo "===> Execute: npm build"
 npm run build
 
 echo "===> Execute: stop running process"
-if ps -ef | grep app/converter | grep -v grep
-then
+if [ps -ef | grep app/converter | grep -v grep] then
   ps -ef | grep app/converter | grep -v grep |awk '{print $2}'| xargs kill -9;
 fi
 
