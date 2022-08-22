@@ -21,6 +21,7 @@ echo "Execute: npm start"
 npm run start > /dev/null 2>&1 &
 
 echo "Execute: check http status with curl"
+sleep 2
 curl -LI https://converter.aldoraweb.com -o /dev/null -w '%{http_code}\n' -s
 
 
