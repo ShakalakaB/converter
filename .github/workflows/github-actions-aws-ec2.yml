@@ -32,12 +32,8 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           remote-host: ${{ env.REMOTE_HOST }}
           remote-user: ${{ env.USERNAME }}
-        run: |
-          echo "$USER"
-          pwd
-          ls /opt/
-      - name: Show user name
-        run: echo "$USER"
+      - name: list aws ec2 instances
+        run: aws ec2 describe-instances
       - name: create file
         run: |
           echo "$USER"
