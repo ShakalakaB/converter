@@ -144,6 +144,9 @@ export const SqlParser: FC = () => {
             top: "0.3em",
             zIndex: 1,
           }}
+          onClick={() => {
+            navigator.clipboard.writeText(entityCode);
+          }}
         >
           <i className="bi bi-clipboard" />
         </button>
