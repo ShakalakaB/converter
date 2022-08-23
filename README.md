@@ -12,6 +12,7 @@ The logic to convert sql schema to entity was borrowed from [SQLParser](https://
 + Framework: Next.js
 + DNS manager: Cloudflare
 + TLS/SSL certificate: Let's Encrypt
++ TLS/SSL certificate auto renewal: certbot
 + Cloud Server: AWS EC2
 + Deploy: shell script
-+ Monitor: UptimeRobot
++ HeartBeat Monitor: UptimeRobot
