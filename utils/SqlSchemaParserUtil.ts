@@ -6,7 +6,8 @@ export class SqlSchemaParserUtil {
   static parseSchema(
     sql: string = "",
     nameType = NameType.CAMEL_CASE,
-    getterAndSetterIncluded: boolean = false
+    getterAndSetterIncluded: boolean = false,
+    keepComment: boolean = false
   ): string {
     const lexicalPosition: [number, number][] = [];
     // lexical-analyzer
@@ -38,6 +39,9 @@ export class SqlSchemaParserUtil {
     for (let table of tables) {
       javaCode += `public class ${table.tableName} {\n`;
       for (let field of table.fields) {
+        if (keepComment && field.comment.length > 0) {
+          javaCode += "\t/**\n" + "\t * " + field.comment + "\n" + "\t */\n";
+        }
         javaCode +=
           "\t" +
           `private ${SqlToJavaDataType.dataTypeMap.get(field.type)} ${
@@ -486,24 +490,30 @@ export class SqlSchemaParserUtil {
         throw new Error("Unsupported field type: " + field.type);
     }
 
-    if (tokens[0]?.toUpperCase() === "NOT NULL") {
-      field.nullable = false;
-      tokens.shift();
-    }
-    if (tokens[0]?.toUpperCase() === "NULL") {
-      field.nullable = true;
-    }
-
-    if (tokens[0]?.toUpperCase() === "DEFAULT") {
-      if (SqlSchemaParserUtil.decodeValue(tokens[1]) === "NULL") {
-        field.nullable = true;
+    for (let i = 0; i < tokens.length; i++) {
+      if (tokens[i]?.toUpperCase() === "NOT NULL") {
+        field.nullable = false;
+        continue;
       }
-      tokens.shift();
-      tokens.shift();
-    }
+      if (tokens[i]?.toUpperCase() === "NULL") {
+        field.nullable = true;
+        continue;
+      }
 
-    if (tokens[0]?.toUpperCase() === "AUTO_INCREMENT") {
-      tokens.shift();
+      if (tokens[i]?.toUpperCase() === "DEFAULT") {
+        if (SqlSchemaParserUtil.decodeValue(tokens[++i]) === "NULL") {
+          field.nullable = true;
+        }
+        continue;
+      }
+
+      if (tokens[i]?.toUpperCase() === "AUTO_INCREMENT") {
+        continue;
+      }
+
+      if (tokens[i]?.toUpperCase() === "COMMENT") {
+        field.comment = tokens[i + 1].replace(/(^'|^"|'$|"$)/g, "");
+      }
     }
 
     return field;
@@ -605,7 +615,7 @@ export class SqlSchemaParserUtil {
         ["t", "\t"],
       ]);
       let value = "";
-      for (let i = 0; i < token.length - 1; i++) {
+      for (let i = 0; i < token.length; i++) {
         if (token[i] == "\\") {
           if (newLines.get(token[i + 1])) {
             value += newLines.get(token[i + 1]);

@@ -4,19 +4,22 @@ export class SqlField {
   length: number;
   unsigned: boolean;
   nullable: boolean;
+  comment: string;
 
   constructor(
     name: string = "",
     type: string = "",
     length: number = 0,
     unsigned: boolean = false,
-    isNull: boolean = false
+    isNull: boolean = false,
+    comment: string = ""
   ) {
     this.name = name;
     this.type = type;
     this.length = length;
     this.unsigned = unsigned;
     this.nullable = isNull;
+    this.comment = comment;
   }
 }
 

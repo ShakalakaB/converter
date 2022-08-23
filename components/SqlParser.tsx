@@ -11,8 +11,8 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 export const SqlParser: FC = () => {
   const exampleSqlSchema =
     "CREATE TABLE DbName.TableName ( \n" +
-    "   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, \n" +
-    "   errcnt INT(10) UNSIGNED NOT NULL DEFAULT '0', \n" +
+    "   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id column comment', \n" +
+    "   errcnt INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'errcnt column comment', \n" +
     "   user_id INT UNSIGNED NOT NULL, \n" +
     "   photo_id INT UNSIGNED NOT NULL, \n" +
     "   place_id INT UNSIGNED NOT NULL, \n" +
@@ -32,13 +32,17 @@ export const SqlParser: FC = () => {
   const submitHandler = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     event.stopPropagation();
+
     const nameType = event.currentTarget.nameType?.value;
     const getterAndSetterIncluded =
       event.currentTarget.getterAndSetter?.checked;
+    const keepComment = event.currentTarget.comment?.checked;
+
     const javaCode = SqlSchemaParserUtil.parseSchema(
       event.currentTarget.sqlSchema?.value,
       NameType[nameType as keyof typeof NameType],
-      getterAndSetterIncluded
+      getterAndSetterIncluded,
+      keepComment
     );
 
     setEntityCode(javaCode);
@@ -76,6 +80,18 @@ export const SqlParser: FC = () => {
                 type="checkbox"
                 name="getterAndSetter"
                 id="getterAndSetterInput"
+              />
+            </div>
+            <div className="form-check mb-3">
+              <label className="form-check-label" htmlFor="commentInput">
+                Keep Comment
+              </label>
+              <input
+                className="form-check-input"
+                type="checkbox"
+                name="comment"
+                id="commentInput"
+                defaultChecked
               />
             </div>
             <div className="form-check">
