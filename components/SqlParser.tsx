@@ -53,6 +53,10 @@ export const SqlParser: FC = () => {
               height: "calc(100vh - 20vh)",
               resize: "none",
               fontFamily: "monospace",
+              overflow: "scroll",
+              // overflowWrap: "normal",
+              // wordWrap: "normal",
+              whiteSpace: "pre",
             }}
             className="col-xl-9 border border-5"
             id="sqlSchema"

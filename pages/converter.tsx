@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { SqlParser } from "../components/SqlParser";
 
-const Sql2entity = () => (
+const Converter = () => (
   <>
     <Head>
       <title>SchemaConvertor | SQL Table to Java Class</title>
@@ -11,4 +11,4 @@ const Sql2entity = () => (
   </>
 );
 
-export default Sql2entity;
+export default Converter;
