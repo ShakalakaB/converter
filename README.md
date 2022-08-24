@@ -8,7 +8,7 @@ This project aims to convert sql schema to entity code.
 
 The logic to convert sql schema to entity was borrowed from [SQLParser](https://github.com/iamcal/SQLParser).
 
-## Architecture: 
+## How I build and maintain it: 
 + **Framework**: Next.js
 + **Code Highlight**: Prism
 + **DNS manager**: Cloudflare
