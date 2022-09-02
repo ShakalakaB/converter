@@ -12,7 +12,7 @@ echo "===> Execute: npm build"
 npm run build
 
 echo "===> Execute: mv built directory to target directory"
-mv /opt/deploy/converter /opt/app/converter
+cp -dr /opt/deploy/converter /opt/app/converter
 
 echo "===> Execute: stop running process"
 if ps -ef | grep app/converter | grep node | grep -v grep
