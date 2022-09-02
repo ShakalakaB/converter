@@ -40,8 +40,8 @@ jobs:
           SSH_HOST: ${{ env.REMOTE_HOST }}
           SSH_USER: ${{ env.REMOTE_USER }}
           SSH_KEY: ${{ secrets.AWS_EC2_KEY }}
-      - name: List home directory
-        run: ssh ec2 'sudo $TARGET/.deploy.sh'
+      - name: Run deploy script
+        run: ssh ec2 "sudo $TARGET/.deploy.sh"
         env:
           TARGET: ${{ env.TARGET }}
         
