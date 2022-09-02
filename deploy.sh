@@ -11,7 +11,7 @@ npm install
 echo "===> Execute: npm build"
 npm run build
 
-echo "===> Execute: mv built directory to target directory"
+echo "===> Execute: copy built directory to target directory"
 cp -dr /opt/deploy/converter /opt/app/converter
 
 echo "===> Execute: stop running process"
