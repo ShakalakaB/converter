@@ -1,6 +1,6 @@
 #!/bin/bash
-echo "===> Execute: cd /opt/app/converter"
-cd /opt/app/converter
+echo "===> Execute: cd /opt/deploy/converter"
+cd /opt/deploy/converter
 
 echo "===> Execute: git pull"
 git pull origin main
@@ -10,6 +10,9 @@ npm install
 
 echo "===> Execute: npm build"
 npm run build
+
+echo "===> Execute: mv built directory to target directory"
+mv /opt/deploy/converter /opt/app/converter
 
 echo "===> Execute: stop running process"
 if ps -ef | grep app/converter | grep node | grep -v grep
