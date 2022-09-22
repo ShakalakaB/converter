@@ -21,6 +21,7 @@ then
 fi
 
 echo "===> Execute: npm start"
+cd /opt/app/converter
 npm run start > /dev/null 2>&1 &
 
 echo "===> Execute: check http status with curl"
