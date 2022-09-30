@@ -7,18 +7,18 @@ on:
     branches: [ "main" ]
 
 env:
-#  bucket_name: "<example-bucket-name>"
+  #  bucket_name: "<example-bucket-name>"
   AWS_REGION: us-east-1
   REMOTE_HOST: "ec2-54-152-215-34.compute-1.amazonaws.com"
   REMOTE_USER: "github-actions"
-  TARGET: "/opt/deploy/converter"
+  TARGET: "/opt/app/converter"
 
 permissions:
   contents: read
   id-token: write
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -40,9 +40,7 @@ jobs:
           SSH_HOST: ${{ env.REMOTE_HOST }}
           SSH_USER: ${{ env.REMOTE_USER }}
           SSH_KEY: ${{ secrets.AWS_EC2_KEY }}
-      - name: Run deploy script
-        run: ssh ec2 "sudo $TARGET/deploy.sh"
-        env:
-          TARGET: ${{ env.TARGET }}
+      - name: List home directory
+        run: ssh ec2 'ls -la'
         
 
