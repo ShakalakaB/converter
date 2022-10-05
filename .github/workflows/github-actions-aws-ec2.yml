@@ -9,7 +9,7 @@ on:
 env:
 #  bucket_name: "<example-bucket-name>"
   AWS_REGION: us-east-1
-  REMOTE_HOST: "ec2-54-152-215-34.compute-1.amazonaws.com"
+  REMOTE_HOST: "ec2-3-221-33-237.compute-1.amazonaws.com"
   REMOTE_USER: "github-actions"
   TARGET: "/opt/deploy/converter"
 
