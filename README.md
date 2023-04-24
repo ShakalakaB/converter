@@ -20,5 +20,6 @@ The logic to convert sql schema to entity was borrowed from [SQLParser](https://
 + **Seo/Advertise Monitor**: 
   - Google Analytics
   - Google Search Console
-  - ahrefs
+  - Ahrefs
++ Logo Design: [hatchful](https://www.shopify.com/tools/logo-maker)
   
