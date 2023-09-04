@@ -2,13 +2,15 @@
 ## Convert sql schema to java pojo
 
 ## Introduction
-Domain: https://conveter.aldoraweb.com
+Project Name: converter
+
+Website: https://conveter.aldoraweb.com
 
 This project aims to convert sql schema to entity code.
 
 The logic to convert sql schema to entity was borrowed from [SQLParser](https://github.com/iamcal/SQLParser).
 
-## How I build and maintain it: 
+## How do I build and maintain the project: 
 + **Framework**: Next.js
 + **Code Highlight**: Prism
 + **DNS manager**: Cloudflare
@@ -22,4 +24,5 @@ The logic to convert sql schema to entity was borrowed from [SQLParser](https://
   - Google Search Console
   - Ahrefs
 + Logo Design: [hatchful](https://www.shopify.com/tools/logo-maker)
+
   
